@@ -1,12 +1,27 @@
-class Logger
-  debug: (abc) ->
-    console.log abc
+levels = ['trace', 'debug', 'info', 'warn', 'error']
+listeners = {}
 
+logger = (args...) -> logger.debug.apply logger, args
+logger.level = 'trace'
 
-logger = new Logger()
+log = (level, args) ->
+  isDisabled = logger.level is null
+  isSilenced = levels.indexOf(level) < levels.indexOf(logger.level)
+  if isDisabled or isSilenced
+    return null
 
-debugFn = logger.debug
-for key, val of logger
-  debugFn[key] = val
+  fn = console[level] or console.log
+  fn.apply console, args
+  if listeners[level]
+    for listener in listeners[level]
+      listener.apply null, args
 
-module.exports = debugFn
+for level in levels
+  logger[level] = do (level) ->
+    (args...) -> log level, args
+
+logger.on = (key, fn) ->
+  listeners[key] ?= []
+  listeners[key].push fn
+
+module.exports = logger
