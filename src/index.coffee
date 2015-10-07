@@ -10,6 +10,11 @@ log = (level, args) ->
   if isDisabled or isSilenced
     return null
 
+  for arg, i in args
+    if typeof arg is 'object'
+      try
+        args[i] = JSON.stringify args[i]
+
   fn = console[level] or console.log
   fn.apply console, args
   if listeners[level]

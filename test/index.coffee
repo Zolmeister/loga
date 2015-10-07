@@ -40,3 +40,15 @@ describe 'loga', ->
 
     log.info 'null'
     log.warn 'test'
+
+  it 'stringifies objects', ->
+    log.info {
+      this: 'is a'
+      relatively: 'large'
+      json: 'blob'
+      to: 'see'
+      if: 'the'
+      log: 'outputs'
+      the: 'whole'
+      object: 'in one line'
+    }, {another: 'object'}
