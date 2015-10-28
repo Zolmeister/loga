@@ -52,3 +52,12 @@ describe 'loga', ->
       the: 'whole'
       object: 'in one line'
     }, {another: 'object'}
+
+  it 'doesnt stringify non-plain objects', (done) ->
+    log.on 'info', (a, err) ->
+      assert.equal typeof a, 'object'
+      assert.equal typeof err, 'object'
+      done()
+
+    log.debug '{"a":"a"} [Error: test] MATCH BELOW'
+    log.info {a: 'a'}, new Error 'test'

@@ -1,6 +1,33 @@
 levels = ['trace', 'debug', 'info', 'warn', 'error']
 listeners = {}
 
+# see lodash 3.10.1 source
+isPlainObject = (value) ->
+  unless typeof value is 'object'
+    return false
+
+  Ctor = value.constructor
+
+  isArguments = (value) ->
+    typeof value is 'object' and
+    value.length? and
+    value.hasOwnProperty?('callee') and
+    not value.propertyIsEnumerable? 'callee'
+
+  if not (
+    String(value) is '[object Object]' and
+    not isArguments(value)
+  ) or (
+    not value.hasOwnProperty?('constructor') and
+    typeof Ctor is 'function' and not Ctor instanceof Ctor
+  )
+    return false
+
+  res = null
+  for key of value
+    res = key
+  res is null or value.hasOwnProperty? res
+
 logger = (args...) -> logger.debug.apply logger, args
 logger.level = 'trace'
 
@@ -10,13 +37,18 @@ log = (level, args) ->
   if isDisabled or isSilenced
     return null
 
+  stringArgs = []
   for arg, i in args
-    if typeof arg is 'object'
+    if isPlainObject arg
       try
-        args[i] = JSON.stringify args[i]
+        stringArgs[i] = JSON.stringify arg
+      catch
+        stringArgs[i] = arg
+    else
+      stringArgs[i] = arg
 
   fn = console[level] or console.log
-  fn.apply console, args
+  fn.apply console, stringArgs
   if listeners[level]
     for listener in listeners[level]
       listener.apply null, args
