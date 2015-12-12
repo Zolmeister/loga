@@ -54,10 +54,17 @@ describe 'loga', ->
     }, {another: 'object'}
 
   it 'doesnt stringify non-plain objects', (done) ->
-    log.on 'info', (a, err) ->
+    log.on 'info', (a, test) ->
       assert.equal typeof a, 'object'
-      assert.equal typeof err, 'object'
+      assert.equal typeof test, 'object'
       done()
 
-    log.debug '{"a":"a"} [Error: test] MATCH BELOW'
-    log.info {a: 'a'}, new Error 'test'
+    class Test
+      constructor: -> @y = 'z'
+      x: 'y'
+
+    log.debug '{"a":"a"} Test { y: \'z\' } MATCH BELOW'
+    log.info {a: 'a'}, new Test()
+
+  it 'logs errors as json', ->
+    log.error new Error 'test'

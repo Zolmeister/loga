@@ -44,6 +44,13 @@ log = (level, args) ->
         stringArgs[i] = JSON.stringify arg
       catch
         stringArgs[i] = arg
+    else if arg instanceof Error
+      stringArgs[i] = JSON.stringify {
+        event: 'error'
+        message: arg.message
+        name: arg.name
+        stack: arg.stack
+      }
     else
       stringArgs[i] = arg
 
